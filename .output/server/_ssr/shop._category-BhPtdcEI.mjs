@@ -1,6 +1,6 @@
 import { n as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
-import { g as ChevronRight } from "../_libs/lucide-react.mjs";
+import { D as ChevronRight } from "../_libs/lucide-react.mjs";
 import { t as categories } from "./catalog-Bp65tuzt.mjs";
 import { t as ProductCard } from "./ProductCard-BAvJ-s1C.mjs";
 import { t as Route } from "./shop._category-99fvX7bv.mjs";

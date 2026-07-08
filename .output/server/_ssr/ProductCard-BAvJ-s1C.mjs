@@ -1,7 +1,7 @@
 import { n as require_jsx_runtime } from "../_libs/react+tanstack__react-query.mjs";
 import { n as useCart } from "./cart-CbnreYHO.mjs";
 import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
-import { s as ShoppingCart } from "../_libs/lucide-react.mjs";
+import { l as ShoppingCart } from "../_libs/lucide-react.mjs";
 import { n as formatKES } from "./catalog-Bp65tuzt.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/ProductCard-BAvJ-s1C.js
 var import_jsx_runtime = require_jsx_runtime();
