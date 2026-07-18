@@ -1,158 +1,214 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ChevronRight, ShoppingCart, Check, Phone } from "lucide-react";
-import { useState } from "react";
-import { PageShell } from "@/components/Layout";
-import { ProductCard } from "@/components/ProductCard";
 import {
-  formatKES,
-  getCategory,
-  getProduct,
-  getProductsByCategory,
-  type Product,
-} from "@/lib/catalog";
+  ArrowLeft,
+  ShoppingCart,
+  ShieldCheck,
+  Truck,
+  PhoneCall,
+  CheckCircle2,
+} from "lucide-react";
+
+import { PageShell } from "@/components/Layout";
+import { products } from "@/data/products";
 import { useCart } from "@/lib/cart";
+import { formatKES } from "@/lib/catalog";
 
 export const Route = createFileRoute("/product/$productId")({
   loader: ({ params }) => {
-    const product = getProduct(params.productId);
-    if (!product) throw notFound();
-    const category = getCategory(product.category)!;
-    const related = getProductsByCategory(product.category)
-      .filter((p) => p.id !== product.id)
-      .slice(0, 4);
-    return { product, category, related };
+    const product = products.find((p) => p.id === params.productId);
+
+    if (!product) {
+      throw notFound();
+    }
+
+    return product;
   },
-  head: ({ loaderData }) => {
-    if (!loaderData)
-      return { meta: [{ title: "Product not found — H.Gallery" }, { name: "robots", content: "noindex" }] };
-    const { product } = loaderData;
-    return {
-      meta: [
-        { title: `${product.name} — H.Gallery` },
-        { name: "description", content: product.description },
-        { property: "og:title", content: `${product.name} — H.Gallery` },
-        { property: "og:description", content: product.description },
-        { property: "og:image", content: product.image },
-      ],
-    };
-  },
-  notFoundComponent: () => (
-    <PageShell>
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <h1 className="font-display text-3xl font-bold">Product not found</h1>
-        <p className="mt-3 text-muted-foreground">The product you're looking for doesn't exist.</p>
-        <Link to="/shop" className="mt-6 inline-block rounded-md bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground">
-          Back to shop
-        </Link>
-      </div>
-    </PageShell>
-  ),
+
+  head: () => ({
+    meta: [
+      {
+        title: "HGALLERY Product",
+      },
+      {
+        name: "description",
+        content: "Premium products from HGALLERY.",
+      },
+    ],
+  }),
+
   component: ProductPage,
 });
 
 function ProductPage() {
-  const { product, category, related } = Route.useLoaderData();
+  const product = Route.useLoaderData();
   const { add } = useCart();
-  const [qty, setQty] = useState(1);
-  const [added, setAdded] = useState(false);
 
-  const handleAdd = () => {
-    add(product.id, qty);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
-  };
+  const related = products
+    .filter((p) => p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
 
   return (
     <PageShell>
-      <div className="border-b border-border bg-muted/40">
-        <nav className="mx-auto flex max-w-7xl items-center gap-1 px-4 py-4 text-xs text-muted-foreground sm:px-6 lg:px-8">
-          <Link to="/" className="hover:text-brand">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link to="/shop" className="hover:text-brand">Shop</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link to="/shop/$category" params={{ category: category.slug }} className="hover:text-brand">
-            {category.name}
-          </Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">{product.name}</span>
-        </nav>
-      </div>
+      {/* Breadcrumb */}
 
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
-            <div className="aspect-square bg-muted">
-              <img
-                src={product.image}
-                alt={product.name}
-                width={1200}
-                height={1200}
-                className="h-full w-full object-cover"
-              />
-            </div>
+      <section className="border-b bg-white">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-6 py-4 text-sm text-gray-500">
+          <Link to="/" className="hover:text-[#5B1F1F]">
+            Home
+          </Link>
+
+          <span>/</span>
+
+          <Link to="/shop" className="hover:text-[#5B1F1F]">
+            Shop
+          </Link>
+
+          <span>/</span>
+
+          <span className="font-semibold text-[#5B1F1F]">{product.name}</span>
+        </div>
+      </section>
+
+      {/* Product */}
+
+      <section className="mx-auto max-w-7xl px-6 py-16">
+        <div className="grid gap-16 lg:grid-cols-2">
+          <div>
+            <img
+              src={product.images[0]}
+              alt={product.name}
+              className="h-[650px] w-full rounded-3xl object-cover shadow-xl"
+            />
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand">{category.name}</p>
-            <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{product.name}</h1>
-            <div className="mt-4 text-3xl font-bold text-brand">{formatKES(product.price)}</div>
-            <p className="mt-6 text-base leading-relaxed text-muted-foreground">{product.description}</p>
+            <Link
+              to="/shop"
+              className="mb-6 inline-flex items-center gap-2 text-[#5B1F1F]"
+            >
+              <ArrowLeft size={18} />
+              Back to Shop
+            </Link>
 
-            <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-brand" /> Quality-checked in our Nairobi showroom</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-brand" /> Delivery available across Kenya</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-brand" /> Installation & custom fitting on request</li>
-            </ul>
+            <span className="rounded-full bg-[#5B1F1F]/10 px-4 py-2 text-sm font-semibold uppercase tracking-wider text-[#5B1F1F]">
+              {product.category}
+            </span>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <div className="inline-flex items-center rounded-md border border-border bg-card">
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="px-3 py-2 text-lg font-semibold text-muted-foreground hover:text-brand"
-                  aria-label="Decrease quantity"
-                >
-                  −
-                </button>
-                <span className="min-w-8 text-center text-sm font-semibold">{qty}</span>
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => q + 1)}
-                  className="px-3 py-2 text-lg font-semibold text-muted-foreground hover:text-brand"
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
+            <h1 className="mt-6 text-5xl font-black text-[#5B1F1F]">
+              {product.name}
+            </h1>
+
+            <p className="mt-8 text-lg leading-8 text-gray-600">
+              {product.description}
+            </p>
+
+            <div className="mt-8 text-4xl font-black text-amber-600">
+              {formatKES(product.price)}
+            </div>
+
+            <div className="mt-10 space-y-4">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="text-green-600" />
+                Premium Quality Materials
               </div>
 
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="text-green-600" />
+                Professional Installation Available
+              </div>
+
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="text-green-600" />
+                Residential & Commercial Use
+              </div>
+
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="text-green-600" />
+                Nationwide Delivery
+              </div>
+            </div>
+
+            <div className="mt-12 flex flex-wrap gap-4">
               <button
-                type="button"
-                onClick={handleAdd}
-                className="inline-flex items-center gap-2 rounded-md bg-gradient-brand px-6 py-3 text-sm font-semibold text-brand-foreground shadow-brand transition-transform hover:-translate-y-0.5"
+                onClick={() => add(product.id, 1)}
+                className="flex items-center gap-3 rounded-xl bg-[#5B1F1F] px-8 py-4 font-semibold text-white transition hover:bg-[#431515]"
               >
-                {added ? <><Check className="h-4 w-4" /> Added to cart</> : <><ShoppingCart className="h-4 w-4" /> Add to cart</>}
+                <ShoppingCart size={20} />
+                Add to Cart
               </button>
 
               <a
-                href="tel:+254726335283"
-                className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold hover:border-brand hover:text-brand"
+                href={`https://wa.me/254726335283?text=Hello HGALLERY, I'm interested in ${product.name}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl border border-[#5B1F1F] px-8 py-4 font-semibold text-[#5B1F1F] transition hover:bg-[#5B1F1F] hover:text-white"
               >
-                <Phone className="h-4 w-4" /> Enquire
+                Request Quotation
               </a>
             </div>
 
-            <p className="mt-6 text-xs text-muted-foreground">
-              Prices in Kenyan Shillings. Contact us for bulk orders and trade pricing.
-            </p>
+            <div className="mt-14 grid gap-6 rounded-3xl bg-gray-50 p-8 md:grid-cols-3">
+              <div className="text-center">
+                <Truck className="mx-auto mb-4 h-10 w-10 text-[#5B1F1F]" />
+                <h3 className="font-bold">Fast Delivery</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Delivery across Kenya.
+                </p>
+              </div>
+
+              <div className="text-center">
+                <ShieldCheck className="mx-auto mb-4 h-10 w-10 text-[#5B1F1F]" />
+                <h3 className="font-bold">Quality Products</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Premium brands and materials.
+                </p>
+              </div>
+
+              <div className="text-center">
+                <PhoneCall className="mx-auto mb-4 h-10 w-10 text-[#5B1F1F]" />
+                <h3 className="font-bold">Expert Support</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Speak with our specialists.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Related */}
+
       {related.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-          <h2 className="font-display text-2xl font-bold">You may also like</h2>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((p: Product) => <ProductCard key={p.id} product={p} />)}
+        <section className="bg-gray-50 py-20">
+          <div className="mx-auto max-w-7xl px-6">
+            <h2 className="text-4xl font-black text-[#5B1F1F]">
+              Related Products
+            </h2>
+
+            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+              {related.map((item) => (
+                <Link
+                  key={item.id}
+                  to="/product/$productId"
+                  params={{ productId: item.id }}
+                  className="overflow-hidden rounded-3xl bg-white shadow-lg transition hover:-translate-y-2"
+                >
+                  <img
+                    src={item.images[0]}
+                    alt={item.name}
+                    className="h-60 w-full object-cover"
+                  />
+
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold">{item.name}</h3>
+
+                    <p className="mt-2 font-semibold text-amber-600">
+                      {formatKES(item.price)}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}
